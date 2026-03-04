@@ -272,43 +272,6 @@ function renderDashboard() {
     populateDashboardFilters(vehicles);
     filterDashboardServices();
 
-    // Calculate stats
-    const totalVehicles = vehicles.length;
-    let totalServices = 0;
-    let servicesThisMonth = 0;
-    let totalMileage = 0;
-    let mileageCount = 0;
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-
-    vehicles.forEach(vehicle => {
-        totalServices += vehicle.services.length;
-        vehicle.services.forEach(service => {
-            const serviceDate = new Date(service.date);
-            if (serviceDate.getMonth() === currentMonth && serviceDate.getFullYear() === currentYear) {
-                servicesThisMonth++;
-            }
-        });
-        if (vehicle.services.length > 0) {
-            const latestService = vehicle.services.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-            if (latestService.mileage) {
-                totalMileage += parseInt(latestService.mileage);
-                mileageCount++;
-            }
-        } else if (vehicle.initialMileage) {
-            totalMileage += parseInt(vehicle.initialMileage);
-            mileageCount++;
-        }
-    });
-
-    const avgMileage = mileageCount > 0 ? Math.round(totalMileage / mileageCount) : 0;
-
-    // Update stat cards
-    document.getElementById('total-vehicles').textContent = totalVehicles;
-    document.getElementById('total-services').textContent = totalServices;
-    document.getElementById('services-this-month').textContent = servicesThisMonth;
-    document.getElementById('total-mileage').textContent = formatNumber(avgMileage);
-
     // Render vehicles list
     const vehiclesList = document.getElementById('dashboard-vehicles-list');
     if (vehicles.length === 0) {
@@ -795,6 +758,10 @@ function renderVehiclesPage() {
     const vehicles = db.vehicles;
     const vehiclesGrid = document.getElementById('vehicles-grid');
 
+    // Update count
+    const countEl = document.getElementById('vehicles-count');
+    if (countEl) countEl.textContent = `(${vehicles.length})`;
+
     if (vehicles.length === 0) {
         vehiclesGrid.innerHTML = `
             <div class="empty-state" style="grid-column: 1/-1;">
@@ -1278,6 +1245,10 @@ function filterAllServices() {
     }
 
     const servicesList = document.getElementById('all-services-list');
+
+    // Update count
+    const countEl = document.getElementById('all-services-count');
+    if (countEl) countEl.textContent = `(${allServices.length})`;
 
     if (allServices.length === 0) {
         servicesList.innerHTML = `

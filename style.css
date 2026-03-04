@@ -620,6 +620,13 @@ body {
     font-weight: 600;
 }
 
+.page-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
 .header-actions {
     display: flex;
     gap: 10px;

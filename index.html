@@ -106,45 +106,6 @@
 
             <!-- Dashboard Page -->
             <section id="dashboard-page" class="page active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <i class="fas fa-car"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="total-vehicles">0</span>
-                            <span class="stat-label">Total Vehicles</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="total-services">0</span>
-                            <span class="stat-label">Total Services</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="services-this-month">0</span>
-                            <span class="stat-label">This Month</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon purple">
-                            <i class="fas fa-road"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="total-mileage">0</span>
-                            <span class="stat-label">Avg Mileage</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Quick Add + Quick Log Row -->
                 <div class="quick-input-row">
                     <!-- Quick Add Service -->
@@ -262,7 +223,7 @@ Changed by: Pete"></textarea>
             <!-- Vehicles Page -->
             <section id="vehicles-page" class="page">
                 <div class="page-header">
-                    <h2>All Vehicles</h2>
+                    <h2>All Vehicles <span id="vehicles-count" class="page-count"></span></h2>
                     <div class="header-actions">
                         <button class="btn-secondary" onclick="openModal('merge-vehicles-modal')">
                             <i class="fas fa-compress-arrows-alt"></i> Merge Vehicles
@@ -349,7 +310,7 @@ Changed by: Pete"></textarea>
             <!-- All Services Page -->
             <section id="services-page" class="page">
                 <div class="page-header">
-                    <h2>All Services</h2>
+                    <h2>All Services <span id="all-services-count" class="page-count"></span></h2>
                     <div class="filter-controls">
                         <select id="vehicle-filter" onchange="filterAllServices()">
                             <option value="all">All Vehicles</option>
