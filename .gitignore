@@ -1,0 +1,13 @@
+# Zone identifier files (Windows)
+*:Zone.Identifier
+*:com.dropbox.attrs
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
