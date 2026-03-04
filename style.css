@@ -935,14 +935,15 @@ body {
 
 .quick-add-form {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
     flex-wrap: wrap;
 }
 
 .quick-add-form select,
 .quick-add-form input {
-    padding: 8px 10px;
+    padding: 12px 14px;
+    font-size: 14px;
     background: var(--bg-input);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
@@ -957,45 +958,45 @@ body {
 }
 
 .quick-add-form input#quick-vehicle {
-    width: 100px;
-    min-width: 90px;
-    max-width: 110px;
+    width: 120px;
+    min-width: 100px;
+    max-width: 140px;
     text-transform: uppercase;
 }
 
 .quick-add-form input[type="date"] {
-    width: 130px;
+    width: 150px;
 }
 
 .quick-add-form input[type="text"] {
     flex: 1;
-    min-width: 80px;
-    max-width: 150px;
-}
-
-.quick-add-form input[type="number"] {
-    width: 80px;
-}
-
-.quick-add-form input#quick-work {
-    min-width: 120px;
+    min-width: 100px;
     max-width: 200px;
 }
 
+.quick-add-form input[type="number"] {
+    width: 100px;
+}
+
+.quick-add-form input#quick-work {
+    min-width: 140px;
+    max-width: 250px;
+}
+
 .quick-add-form input#quick-part {
-    width: 110px;
-    min-width: 90px;
-    max-width: 130px;
+    width: 120px;
+    min-width: 100px;
+    max-width: 150px;
 }
 
 .btn-quick-add {
-    padding: 8px 16px;
+    padding: 12px 20px;
     background: var(--success);
     color: white;
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     transition: all 0.2s ease;
 }
 
@@ -1006,9 +1007,9 @@ body {
 
 .dash-quicklog-textarea {
     width: 100%;
-    min-height: 80px;
-    max-height: 150px;
-    padding: 10px;
+    min-height: 140px;
+    max-height: 300px;
+    padding: 14px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     background: var(--bg-input);
@@ -1027,7 +1028,7 @@ body {
 
 .dash-quicklog-textarea::placeholder {
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .dash-quicklog-actions {
