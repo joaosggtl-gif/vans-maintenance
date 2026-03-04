@@ -915,8 +915,15 @@ body {
 }
 
 /* Quick Add Service */
-.quick-add-card {
+.quick-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     margin-bottom: 20px;
+}
+
+.quick-add-card, .quick-log-card {
+    margin-bottom: 0;
 }
 
 .quick-add-form {
@@ -988,6 +995,48 @@ body {
 .btn-quick-add:hover {
     background: #16a34a;
     transform: scale(1.05);
+}
+
+.dash-quicklog-textarea {
+    width: 100%;
+    min-height: 80px;
+    max-height: 150px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.dash-quicklog-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.dash-quicklog-textarea::placeholder {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.dash-quicklog-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-sm {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+}
+
+.dash-quicklog-status {
+    font-size: 13px;
 }
 
 /* All Services Card */
@@ -1870,6 +1919,10 @@ form {
 }
 
 @media (max-width: 768px) {
+    .quick-input-row {
+        grid-template-columns: 1fr;
+    }
+
     .sidebar {
         transform: translateX(-100%);
     }

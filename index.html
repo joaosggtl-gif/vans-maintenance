@@ -145,21 +145,44 @@
                     </div>
                 </div>
 
-                <!-- Quick Add Service -->
-                <div class="card quick-add-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-bolt"></i> Quick Add Service</h2>
+                <!-- Quick Add + Quick Log Row -->
+                <div class="quick-input-row">
+                    <!-- Quick Add Service -->
+                    <div class="card quick-add-card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-bolt"></i> Quick Add Service</h2>
+                        </div>
+                        <form class="quick-add-form" onsubmit="quickAddService(event)">
+                            <input type="text" id="quick-vehicle" placeholder="Vehicle Reg" required list="vehicle-suggestions" autocomplete="off">
+                            <input type="date" id="quick-date" required>
+                            <input type="text" id="quick-work" placeholder="Work done" required list="work-suggestions" autocomplete="off">
+                            <input type="text" id="quick-part" placeholder="Part (e.g. FP, FR)" list="part-suggestions" autocomplete="off">
+                            <input type="text" id="quick-provider" placeholder="Provider" list="provider-suggestions" autocomplete="off">
+                            <input type="number" id="quick-mileage" placeholder="Mileage">
+                            <input type="text" id="quick-location" placeholder="Location" list="location-suggestions" autocomplete="off">
+                            <button type="submit" class="btn-quick-add"><i class="fas fa-plus"></i></button>
+                        </form>
                     </div>
-                    <form class="quick-add-form" onsubmit="quickAddService(event)">
-                        <input type="text" id="quick-vehicle" placeholder="Vehicle Reg" required list="vehicle-suggestions" autocomplete="off">
-                        <input type="date" id="quick-date" required>
-                        <input type="text" id="quick-work" placeholder="Work done" required list="work-suggestions" autocomplete="off">
-                        <input type="text" id="quick-part" placeholder="Part (e.g. FP, FR)" list="part-suggestions" autocomplete="off">
-                        <input type="text" id="quick-provider" placeholder="Provider" list="provider-suggestions" autocomplete="off">
-                        <input type="number" id="quick-mileage" placeholder="Mileage">
-                        <input type="text" id="quick-location" placeholder="Location" list="location-suggestions" autocomplete="off">
-                        <button type="submit" class="btn-quick-add"><i class="fas fa-plus"></i></button>
-                    </form>
+
+                    <!-- Quick Log (WhatsApp paste) -->
+                    <div class="card quick-log-card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-comment-dots"></i> Quick Log</h2>
+                        </div>
+                        <textarea id="dash-quicklog-input" class="dash-quicklog-textarea" placeholder="Paste WhatsApp messages here...
+
+Date: 04/03
+Reg: ZVA
+Position: FP
+Wear or Damage: TREAD
+Changed by: Pete"></textarea>
+                        <div class="dash-quicklog-actions">
+                            <button class="btn-primary btn-sm" onclick="parseDashQuickLog()">
+                                <i class="fas fa-magic"></i> Parse
+                            </button>
+                            <span id="dash-quicklog-status" class="dash-quicklog-status"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- All Services with Filters -->
