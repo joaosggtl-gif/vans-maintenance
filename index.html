@@ -35,6 +35,10 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Reports</span>
                 </a>
+                <a href="#" class="nav-item" data-page="quicklog">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Quick Log</span>
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-export" onclick="exportAllData()">
@@ -352,6 +356,78 @@
                                 <!-- All services will be rendered here -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Log Page -->
+            <section id="quicklog-page" class="page">
+                <div class="page-header">
+                    <h2>Quick Log</h2>
+                </div>
+                <div class="quicklog-container">
+                    <div class="card quicklog-card">
+                        <div class="quicklog-header">
+                            <i class="fas fa-comment-dots"></i>
+                            <div>
+                                <h3>Paste Service Messages</h3>
+                                <p>Paste WhatsApp messages or type service details. One or multiple entries at a time.</p>
+                            </div>
+                        </div>
+                        <div class="quicklog-format-hint">
+                            <strong>Accepted format:</strong>
+                            <pre>Date: 08/10
+Reg: ZVA
+Position: FP
+Wear or Damage: TREAD
+Changed by: PETE
+Mileage: 54000 (optional)</pre>
+                        </div>
+                        <textarea id="quicklog-input" class="quicklog-textarea" placeholder="Paste your WhatsApp messages here or type service details...
+
+Example:
+Date: 04/03
+Reg: ZVA
+Position: FP
+Wear or Damage: TREAD
+Changed by: Pete" rows="12"></textarea>
+                        <div class="quicklog-actions">
+                            <button class="btn-primary" onclick="parseQuickLog()">
+                                <i class="fas fa-magic"></i> Parse & Preview
+                            </button>
+                            <button class="btn-secondary" onclick="clearQuickLog()">
+                                <i class="fas fa-eraser"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div id="quicklog-preview" class="card quicklog-preview" style="display:none;">
+                        <div class="quicklog-preview-header">
+                            <h3><i class="fas fa-check-circle"></i> <span id="quicklog-preview-count">0</span> services found</h3>
+                            <span id="quicklog-warnings" class="quicklog-warnings"></span>
+                        </div>
+                        <div class="table-container">
+                            <table class="services-table compact">
+                                <thead>
+                                    <tr>
+                                        <th>Vehicle</th>
+                                        <th>Date</th>
+                                        <th>Work</th>
+                                        <th>Provider</th>
+                                        <th>Mileage</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quicklog-preview-list"></tbody>
+                            </table>
+                        </div>
+                        <div class="quicklog-actions">
+                            <button class="btn-primary" onclick="confirmQuickLog()">
+                                <i class="fas fa-save"></i> Save All Services
+                            </button>
+                            <button class="btn-secondary" onclick="cancelQuickLog()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>

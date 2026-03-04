@@ -233,7 +233,8 @@ function showPage(pageName) {
         'vehicles': 'Vehicles',
         'vehicle-detail': 'Vehicle Details',
         'services': 'All Services',
-        'reports': 'Reports & Analytics'
+        'reports': 'Reports & Analytics',
+        'quicklog': 'Quick Log'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'Dashboard';
 
@@ -1299,6 +1300,235 @@ function filterAllServices() {
             <td>${service.location}</td>
         </tr>
     `).join('');
+}
+
+// Quick Log - Parse WhatsApp-style messages into services
+let parsedQuickLogEntries = [];
+
+function resolvePartialReg(partial) {
+    const db = getDB();
+    const clean = partial.toUpperCase().replace(/\s+/g, '');
+
+    // Direct full match
+    const directMatch = db.vehicles.find(v => v.reg === clean);
+    if (directMatch) return directMatch.reg;
+
+    // Match by last 3 characters (e.g. "ZVA" -> "LD71ZVA")
+    const suffixMatches = db.vehicles.filter(v => v.reg.endsWith(clean));
+    if (suffixMatches.length === 1) return suffixMatches[0].reg;
+
+    // Match by partial suffix (e.g. "1ZVA" or "71ZVA")
+    const partialMatches = db.vehicles.filter(v => v.reg.includes(clean));
+    if (partialMatches.length === 1) return partialMatches[0].reg;
+
+    return null;
+}
+
+function parseQuickLog() {
+    const input = document.getElementById('quicklog-input').value.trim();
+    if (!input) {
+        showToast('Please paste or type service messages first', 'error');
+        return;
+    }
+
+    parsedQuickLogEntries = [];
+    const warnings = [];
+
+    // Split into blocks - each entry starts with "Date:"
+    const blocks = input.split(/(?=Date\s*:)/i).filter(b => b.trim());
+
+    for (const block of blocks) {
+        const dateMatch = block.match(/Date\s*:\s*(.+)/i);
+        const regMatch = block.match(/Reg\s*:\s*(.+)/i);
+        const posMatch = block.match(/Position\s*:\s*(.+)/i);
+        const wearMatch = block.match(/(?:Wear\s*(?:or|\/)\s*Damage|Damage)\s*:\s*(.+)/i);
+        const changedMatch = block.match(/Changed\s*by\s*:\s*(.+)/i);
+        const mileageMatch = block.match(/Mileage\s*:\s*(\d+)/i);
+        const workMatch = block.match(/(?:Work|Service|Description)\s*:\s*(.+)/i);
+        const providerMatch = block.match(/Provider\s*:\s*(.+)/i);
+        const locationMatch = block.match(/Location\s*:\s*(.+)/i);
+
+        if (!dateMatch) continue;
+
+        // Parse date
+        const rawDate = dateMatch[1].trim();
+        let dateStr = null;
+
+        // Try dd/mm/yy or dd.mm.yy
+        let m = rawDate.match(/(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
+        if (m) {
+            let [, day, month, year] = m;
+            year = parseInt(year);
+            if (year < 100) year += 2000;
+            dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        } else {
+            // Try dd/mm
+            m = rawDate.match(/(\d{1,2})[.\/\-](\d{1,2})/);
+            if (m) {
+                const [, day, month] = m;
+                const year = parseInt(month) <= 3 ? 2026 : 2025;
+                dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            }
+        }
+
+        if (!dateStr) {
+            warnings.push(`Could not parse date: "${rawDate}"`);
+            continue;
+        }
+
+        // Parse reg
+        const rawReg = regMatch ? regMatch[1].trim().replace(/\*|<.*?>/g, '').trim() : '';
+        const fullReg = rawReg ? resolvePartialReg(rawReg) : null;
+
+        // Build work description
+        let work = '';
+        if (workMatch) {
+            work = workMatch[1].trim();
+        } else if (posMatch) {
+            const position = posMatch[1].trim();
+            const wear = wearMatch ? wearMatch[1].trim() : '';
+            work = `Tyre Change - Position: ${position}`;
+            if (wear) work += ` | ${wear}`;
+        }
+
+        if (!work) work = 'Service';
+
+        // Provider
+        let provider = '';
+        if (providerMatch) {
+            provider = providerMatch[1].trim();
+        } else if (changedMatch) {
+            provider = changedMatch[1].trim().replace(/<.*?>/g, '').trim();
+        }
+
+        const mileage = mileageMatch ? parseInt(mileageMatch[1]) : 0;
+        const location = locationMatch ? locationMatch[1].trim() : 'On Site';
+
+        parsedQuickLogEntries.push({
+            date: dateStr,
+            rawReg: rawReg,
+            fullReg: fullReg,
+            work: work,
+            provider: provider,
+            mileage: mileage,
+            location: location,
+            notes: wearMatch ? `Wear/Damage: ${wearMatch[1].trim()}` : ''
+        });
+    }
+
+    if (parsedQuickLogEntries.length === 0) {
+        showToast('No valid entries found. Check the format.', 'error');
+        return;
+    }
+
+    // Show preview
+    const preview = document.getElementById('quicklog-preview');
+    const countEl = document.getElementById('quicklog-preview-count');
+    const warningsEl = document.getElementById('quicklog-warnings');
+    const listEl = document.getElementById('quicklog-preview-list');
+
+    preview.style.display = 'block';
+    countEl.textContent = parsedQuickLogEntries.length;
+
+    const unresolvedCount = parsedQuickLogEntries.filter(e => !e.fullReg).length;
+    if (unresolvedCount > 0) {
+        warningsEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${unresolvedCount} unresolved registration(s)`;
+    } else {
+        warningsEl.textContent = '';
+    }
+    if (warnings.length > 0) {
+        warningsEl.innerHTML += (warningsEl.textContent ? ' | ' : '') + warnings.join(', ');
+    }
+
+    listEl.innerHTML = parsedQuickLogEntries.map((entry, i) => `
+        <tr>
+            <td>
+                ${entry.fullReg
+                    ? `<strong>${entry.fullReg}</strong>`
+                    : `<span class="quicklog-status-warn" title="Not found in fleet">${entry.rawReg || '?'} <i class="fas fa-question-circle"></i></span>`
+                }
+            </td>
+            <td>${formatDate(entry.date)}</td>
+            <td title="${entry.work}">${truncateText(entry.work, 35)}</td>
+            <td>${entry.provider || '-'}</td>
+            <td>${entry.mileage ? formatNumber(entry.mileage) : '-'}</td>
+            <td>
+                ${entry.fullReg
+                    ? '<span class="quicklog-status-ok"><i class="fas fa-check"></i> Ready</span>'
+                    : '<span class="quicklog-status-err"><i class="fas fa-times"></i> No match</span>'
+                }
+            </td>
+        </tr>
+    `).join('');
+
+    showToast(`${parsedQuickLogEntries.length} entries parsed. Review and confirm.`, 'success');
+}
+
+function confirmQuickLog() {
+    const validEntries = parsedQuickLogEntries.filter(e => e.fullReg);
+
+    if (validEntries.length === 0) {
+        showToast('No valid entries to save (all registrations unresolved)', 'error');
+        return;
+    }
+
+    const msg = `Save ${validEntries.length} service(s) to the fleet?` +
+        (validEntries.length < parsedQuickLogEntries.length
+            ? `\n\n${parsedQuickLogEntries.length - validEntries.length} entries will be skipped (unresolved reg).`
+            : '');
+
+    if (!confirm(msg)) return;
+
+    const db = getDB();
+    let added = 0;
+
+    for (const entry of validEntries) {
+        const vehicle = db.vehicles.find(v => v.reg === entry.fullReg);
+        if (!vehicle) continue;
+
+        // Check for duplicate
+        const isDup = vehicle.services.some(s =>
+            s.date === entry.date && s.work === entry.work
+        );
+        if (isDup) continue;
+
+        vehicle.services.push({
+            id: generateId(),
+            date: entry.date,
+            work: entry.work,
+            duration: '',
+            provider: entry.provider,
+            mileage: entry.mileage,
+            location: entry.location,
+            cost: '',
+            notes: entry.notes,
+            createdAt: new Date().toISOString()
+        });
+
+        if (entry.mileage > 0 && entry.mileage > (vehicle.initialMileage || 0)) {
+            vehicle.initialMileage = entry.mileage;
+        }
+
+        added++;
+    }
+
+    saveDB(db);
+    autoSaveBackup('quicklog');
+
+    showToast(`${added} service(s) saved successfully!`, 'success');
+    clearQuickLog();
+    parsedQuickLogEntries = [];
+}
+
+function clearQuickLog() {
+    document.getElementById('quicklog-input').value = '';
+    document.getElementById('quicklog-preview').style.display = 'none';
+    parsedQuickLogEntries = [];
+}
+
+function cancelQuickLog() {
+    document.getElementById('quicklog-preview').style.display = 'none';
+    parsedQuickLogEntries = [];
 }
 
 // Reports Page
