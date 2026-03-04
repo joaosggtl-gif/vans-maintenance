@@ -415,7 +415,6 @@ function quickAddService(event) {
     const part = document.getElementById('quick-part').value.trim();
     const provider = document.getElementById('quick-provider').value.trim() || 'Unknown';
     const mileage = document.getElementById('quick-mileage').value || 0;
-    const duration = document.getElementById('quick-duration').value.trim() || '';
     const location = document.getElementById('quick-location').value.trim() || '';
 
     if (!vehicleReg || !date || !work) {
@@ -441,7 +440,7 @@ function quickAddService(event) {
         id: generateId(),
         date: date,
         work: work,
-        duration: duration,
+        duration: '',
         provider: provider,
         mileage: parseInt(mileage) || 0,
         location: location,
@@ -461,7 +460,6 @@ function quickAddService(event) {
     document.getElementById('quick-part').value = '';
     document.getElementById('quick-provider').value = '';
     document.getElementById('quick-mileage').value = '';
-    document.getElementById('quick-duration').value = '';
     document.getElementById('quick-location').value = '';
 
     showToast(`Service added to ${vehicle.reg}!`);
@@ -607,7 +605,6 @@ function renderDashboardServicesPage() {
             <td title="${service.work}">${truncateText(service.work, 30)}</td>
             <td title="${service.provider}">${truncateText(service.provider, 20)}</td>
             <td>${service.mileage ? formatNumber(service.mileage) : '-'}</td>
-            <td>${service.duration || '-'}</td>
             <td>${truncateText(service.location || '-', 15)}</td>
             <td>
                 <div class="table-actions">
@@ -735,7 +732,6 @@ function sortVehicleServices(column, direction) {
         <tr>
             <td>${formatDate(service.date)}</td>
             <td>${service.work}</td>
-            <td>${service.duration || '-'}</td>
             <td>${service.provider}</td>
             <td>${formatNumber(service.mileage)}</td>
             <td>${service.location}</td>
@@ -781,7 +777,6 @@ function sortAllServices(column, direction) {
             <td><strong>${service.vehicleReg}</strong></td>
             <td>${formatDate(service.date)}</td>
             <td>${service.work}</td>
-            <td>${service.duration || '-'}</td>
             <td>${service.provider}</td>
             <td>${formatNumber(service.mileage)}</td>
             <td>${service.location}</td>
@@ -1206,7 +1201,6 @@ function renderVehicleServices(vehicle, filter = 'all') {
         <tr>
             <td>${formatDate(service.date)}</td>
             <td>${service.work}</td>
-            <td>${service.duration || '-'}</td>
             <td>${service.provider}</td>
             <td>${formatNumber(service.mileage)}</td>
             <td>${service.location}</td>
@@ -1294,7 +1288,6 @@ function filterAllServices() {
             <td><strong>${service.vehicleReg}</strong></td>
             <td>${formatDate(service.date)}</td>
             <td>${service.work}</td>
-            <td>${service.duration || '-'}</td>
             <td>${service.provider}</td>
             <td>${formatNumber(service.mileage)}</td>
             <td>${service.location}</td>
@@ -1795,11 +1788,11 @@ function addService(event) {
         id: generateId(),
         date: document.getElementById('service-date').value,
         work: work,
-        duration: document.getElementById('service-duration').value.trim(),
+        duration: '',
         provider: provider,
         mileage: document.getElementById('service-mileage').value,
         location: location,
-        cost: document.getElementById('service-cost').value,
+        cost: '',
         notes: document.getElementById('service-notes').value.trim(),
         createdAt: new Date().toISOString()
     };
@@ -1833,11 +1826,9 @@ function editService(vehicleId, serviceId) {
     document.getElementById('edit-service-vehicle-id').value = vehicleId;
     document.getElementById('edit-service-date').value = service.date;
     document.getElementById('edit-service-work').value = service.work;
-    document.getElementById('edit-service-duration').value = service.duration || '';
     document.getElementById('edit-service-provider').value = service.provider;
     document.getElementById('edit-service-mileage').value = service.mileage;
     document.getElementById('edit-service-location').value = service.location;
-    document.getElementById('edit-service-cost').value = service.cost || '';
     document.getElementById('edit-service-notes').value = service.notes || '';
 
     openModal('edit-service-modal');
@@ -1865,11 +1856,9 @@ function updateService(event) {
         ...vehicle.services[serviceIndex],
         date: document.getElementById('edit-service-date').value,
         work: work,
-        duration: document.getElementById('edit-service-duration').value.trim(),
         provider: provider,
         mileage: document.getElementById('edit-service-mileage').value,
         location: location,
-        cost: document.getElementById('edit-service-cost').value,
         notes: document.getElementById('edit-service-notes').value.trim(),
         updatedAt: new Date().toISOString()
     };
@@ -1958,9 +1947,7 @@ function exportAllDataExcel() {
                 'Work Done': service.work,
                 'Provider': service.provider || '',
                 'Mileage': service.mileage || '',
-                'Duration': service.duration || '',
                 'Location': service.location || '',
-                'Cost': service.cost || '',
                 'Notes': service.notes || ''
             });
         });
@@ -1985,9 +1972,7 @@ function exportAllDataExcel() {
         { wch: 40 },  // Work Done
         { wch: 30 },  // Provider
         { wch: 10 },  // Mileage
-        { wch: 12 },  // Duration
         { wch: 20 },  // Location
-        { wch: 10 },  // Cost
         { wch: 40 }   // Notes
     ];
 
@@ -2037,13 +2022,11 @@ function exportAllDataExcel() {
 
     XLSX.utils.book_append_sheet(wb, wsVehicles, 'Vehicles Summary');
 
-    // Sheet 3: Services by Vehicle (one sheet per vehicle with many services)
-    const topVehicles = [...db.vehicles]
-        .filter(v => v.services.length > 5)
-        .sort((a, b) => b.services.length - a.services.length)
-        .slice(0, 10);
+    // Sheet 3: Services by Vehicle (one sheet per vehicle)
+    const allVehiclesSorted = [...db.vehicles]
+        .sort((a, b) => a.reg.localeCompare(b.reg));
 
-    topVehicles.forEach(vehicle => {
+    allVehiclesSorted.forEach(vehicle => {
         const vehicleServices = vehicle.services
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .map(service => {
@@ -2054,9 +2037,7 @@ function exportAllDataExcel() {
                     'Work Done': service.work,
                     'Provider': service.provider || '',
                     'Mileage': service.mileage || '',
-                    'Duration': service.duration || '',
                     'Location': service.location || '',
-                    'Cost': service.cost || '',
                     'Notes': service.notes || ''
                 };
             });
@@ -2068,9 +2049,7 @@ function exportAllDataExcel() {
             { wch: 40 },  // Work Done
             { wch: 30 },  // Provider
             { wch: 10 },  // Mileage
-            { wch: 12 },  // Duration
             { wch: 20 },  // Location
-            { wch: 10 },  // Cost
             { wch: 40 }   // Notes
         ];
 

@@ -157,7 +157,6 @@
                         <input type="text" id="quick-part" placeholder="Part (e.g. FP, FR)" list="part-suggestions" autocomplete="off">
                         <input type="text" id="quick-provider" placeholder="Provider" list="provider-suggestions" autocomplete="off">
                         <input type="number" id="quick-mileage" placeholder="Mileage">
-                        <input type="text" id="quick-duration" placeholder="Duration" list="duration-suggestions" autocomplete="off">
                         <input type="text" id="quick-location" placeholder="Location" list="location-suggestions" autocomplete="off">
                         <button type="submit" class="btn-quick-add"><i class="fas fa-plus"></i></button>
                     </form>
@@ -193,7 +192,6 @@
                                     <th class="sortable" data-sort="work" onclick="sortTable(this, 'dashboard')">Work Done <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="provider" onclick="sortTable(this, 'dashboard')">Provider <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="mileage" onclick="sortTable(this, 'dashboard')">Mileage <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-sort="duration" onclick="sortTable(this, 'dashboard')">Duration <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="location" onclick="sortTable(this, 'dashboard')">Location <i class="fas fa-sort"></i></th>
                                     <th></th>
                                 </tr>
@@ -311,7 +309,6 @@
                                 <tr>
                                     <th class="sortable" data-sort="date" onclick="sortTable(this, 'vehicle')">Date <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="work" onclick="sortTable(this, 'vehicle')">Service <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-sort="duration" onclick="sortTable(this, 'vehicle')">Duration <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="provider" onclick="sortTable(this, 'vehicle')">Provider <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="mileage" onclick="sortTable(this, 'vehicle')">Mileage <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="location" onclick="sortTable(this, 'vehicle')">Location <i class="fas fa-sort"></i></th>
@@ -346,7 +343,6 @@
                                     <th class="sortable" data-sort="vehicleReg" onclick="sortTable(this, 'allservices')">Vehicle <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="date" onclick="sortTable(this, 'allservices')">Date <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="work" onclick="sortTable(this, 'allservices')">Service <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-sort="duration" onclick="sortTable(this, 'allservices')">Duration <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="provider" onclick="sortTable(this, 'allservices')">Provider <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="mileage" onclick="sortTable(this, 'allservices')">Mileage <i class="fas fa-sort"></i></th>
                                     <th class="sortable" data-sort="location" onclick="sortTable(this, 'allservices')">Location <i class="fas fa-sort"></i></th>
@@ -581,21 +577,13 @@ Changed by: Pete" rows="12"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="service-duration">Duration</label>
-                        <input type="text" id="service-duration" placeholder="e.g., 2 hours" list="duration-suggestions" autocomplete="off">
-                    </div>
-                    <div class="form-group">
                         <label for="service-provider">Provider *</label>
                         <input type="text" id="service-provider" required placeholder="Service provider name" list="provider-suggestions" autocomplete="off">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="service-location">Location *</label>
-                    <input type="text" id="service-location" required placeholder="Where was the service done?" list="location-suggestions" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="service-cost">Cost</label>
-                    <input type="number" step="0.01" id="service-cost" placeholder="Service cost">
+                    <div class="form-group">
+                        <label for="service-location">Location *</label>
+                        <input type="text" id="service-location" required placeholder="Where was the service done?" list="location-suggestions" autocomplete="off">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="service-notes">Additional Notes</label>
@@ -635,21 +623,13 @@ Changed by: Pete" rows="12"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-service-duration">Duration</label>
-                        <input type="text" id="edit-service-duration" list="duration-suggestions" autocomplete="off">
-                    </div>
-                    <div class="form-group">
                         <label for="edit-service-provider">Provider *</label>
                         <input type="text" id="edit-service-provider" required list="provider-suggestions" autocomplete="off">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-service-location">Location *</label>
-                    <input type="text" id="edit-service-location" required list="location-suggestions" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="edit-service-cost">Cost</label>
-                    <input type="number" step="0.01" id="edit-service-cost">
+                    <div class="form-group">
+                        <label for="edit-service-location">Location *</label>
+                        <input type="text" id="edit-service-location" required list="location-suggestions" autocomplete="off">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="edit-service-notes">Additional Notes</label>
@@ -741,21 +721,6 @@ Changed by: Pete" rows="12"></textarea>
         <option value="Exhaust">
         <option value="Interior">
         <option value="Exterior">
-    </datalist>
-    <datalist id="duration-suggestions">
-        <option value="15 min">
-        <option value="30 min">
-        <option value="45 min">
-        <option value="1 hour">
-        <option value="1.5 hours">
-        <option value="2 hours">
-        <option value="3 hours">
-        <option value="4 hours">
-        <option value="Half day">
-        <option value="1 day">
-        <option value="2 days">
-        <option value="3 days">
-        <option value="1 week">
     </datalist>
 
     <!-- Toast Notification -->
