@@ -19,6 +19,7 @@ const tableSortState = {
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     initializeDB();
+    runMigrations();
     updateCurrentDate();
     renderDashboard();
     setupNavigation();
@@ -41,6 +42,83 @@ function initializeDB() {
             lastUpdated: new Date().toISOString()
         };
         localStorage.setItem(DB_KEY, JSON.stringify(initialDB));
+    }
+}
+
+// One-time data migrations
+function runMigrations() {
+    const MIGRATION_KEY = 'fleet_migrations_done';
+    const done = JSON.parse(localStorage.getItem(MIGRATION_KEY) || '[]');
+
+    // Batch merge duplicates into correct registrations
+    if (!done.includes('merge_all_dupes_2026')) {
+        const merges = [
+            { sources: ['LC21ODK'], target: 'LC71ODK' },
+            { sources: ['LC71KGF'], target: 'LD71KGF' },
+            { sources: ['LC71OPM'], target: 'LG71OPM' },
+            { sources: ['LC71PXF'], target: 'LG71PXF' },
+            { sources: ['LC71RUU'], target: 'LG71RUU' },
+            { sources: ['LC71WKW'], target: 'LC21WKW' },
+            { sources: ['LC71WWC', 'LG71WWC'], target: 'LD71WWC' },
+            { sources: ['LC71YEE', 'LG71YEE'], target: 'LD71YEE' },
+            { sources: ['LC71YOO', 'LG71YOO'], target: 'LC21YOO' },
+            { sources: ['LD71FDZ', 'LG71FDZ'], target: 'LC71FDZ' },
+            { sources: ['LG71KZT'], target: 'LD71KZT' },
+            { sources: ['LD71OOW'], target: 'LG71OOW' },
+            { sources: ['LD71RDZ'], target: 'LG71RDZ' },
+            { sources: ['LG71RGY'], target: 'LD71RGY' },
+            { sources: ['LG71USU'], target: 'LD71USU' },
+            { sources: ['LG71ZVA'], target: 'LD71ZVA' },
+            { sources: ['LG71ZVY'], target: 'LD71ZVY' },
+            { sources: ['LG71ZWM'], target: 'LD71ZWM' },
+            { sources: ['LF71EHA'], target: 'LF21EHA' },
+            { sources: ['LF71TVG', 'LG71TVG'], target: 'LF21TVG' },
+            { sources: ['LG71FHM'], target: 'LC71FHM' },
+            { sources: ['LG71OVU'], target: 'LC21OVU' },
+        ];
+
+        const db = getDB();
+        const allSourceRegs = new Set();
+        let totalMerged = 0;
+
+        for (const merge of merges) {
+            const target = db.vehicles.find(v => v.reg === merge.target);
+            if (!target) continue;
+
+            for (const srcReg of merge.sources) {
+                const source = db.vehicles.find(v => v.reg === srcReg);
+                if (!source) continue;
+
+                source.services.forEach(service => {
+                    const isDup = target.services.some(
+                        s => s.date === service.date && s.work.toLowerCase() === service.work.toLowerCase()
+                    );
+                    if (!isDup) {
+                        target.services.push(service);
+                    }
+                });
+
+                allSourceRegs.add(srcReg);
+                totalMerged++;
+            }
+
+            const allMileages = target.services.map(s => parseInt(s.mileage) || 0).filter(m => m > 0);
+            if (allMileages.length > 0) {
+                const maxMileage = Math.max(...allMileages);
+                if (maxMileage > (target.initialMileage || 0)) {
+                    target.initialMileage = maxMileage;
+                }
+            }
+        }
+
+        if (totalMerged > 0) {
+            db.vehicles = db.vehicles.filter(v => !allSourceRegs.has(v.reg));
+            saveDB(db);
+            console.log(`Migration: Merged ${totalMerged} duplicate vehicles`);
+        }
+
+        done.push('merge_all_dupes_2026');
+        localStorage.setItem(MIGRATION_KEY, JSON.stringify(done));
     }
 }
 
@@ -1482,6 +1560,7 @@ function confirmQuickLog() {
     showToast(`${added} service(s) saved successfully!`, 'success');
     clearQuickLog();
     parsedQuickLogEntries = [];
+    renderAllServicesPage();
 }
 
 function clearQuickLog() {
